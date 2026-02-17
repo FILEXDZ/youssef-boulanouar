@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $visitors = json_decode(file_get_contents($file), true);
         } else {
             $visitors = [
-                'total' => 1470,
+                'total' => 1476,
                 'list' => []
             ];
         }
