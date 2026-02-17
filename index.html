@@ -348,7 +348,7 @@
     <div class="profile-card" id="profileCard">
         <!-- العداد -->
         <div class="visitor-counter">
-            👁 Visits: <span id="visitCount" class="visitor-count">14052</span>
+            👁 Visits: <span id="visitCount" class="visitor-count">1470</span>
         </div>
 
         <div class="avatar-container">
@@ -419,7 +419,7 @@
         };
 
         // --- دالة العداد ---
-        function handleVisitorCount() {
+        async function handleVisitorCount() {
             // الحصول على معرف الزائر الفريد
             let visitorId = localStorage.getItem('visitor_id');
             
@@ -429,32 +429,23 @@
                 localStorage.setItem('visitor_id', visitorId);
             }
             
-            // الحصول على قائمة الزوار السابقين
-            let visitorsList = localStorage.getItem('visitors_list');
-            let visitorsArray = visitorsList ? JSON.parse(visitorsList) : [];
-            
-            // الحصول على عدد الزوار الكلي
-            let totalVisitors = localStorage.getItem('total_visitors');
-            
-            if (!totalVisitors) {
-                // إذا لم تكن هناك قيمة محفوظة، ابدأ من 1470
-                totalVisitors = 1470;
-                visitorsArray = [visitorId];
-                localStorage.setItem('total_visitors', totalVisitors);
-                localStorage.setItem('visitors_list', JSON.stringify(visitorsArray));
-            } else {
-                // إذا كان الزائر الحالي جديد، أضفه وزيادة العداد
-                if (!visitorsArray.includes(visitorId)) {
-                    visitorsArray.push(visitorId);
-                    totalVisitors = parseInt(totalVisitors) + 1;
-                    localStorage.setItem('total_visitors', totalVisitors);
-                    localStorage.setItem('visitors_list', JSON.stringify(visitorsArray));
+            try {
+                // إرسال الزائر الجديد إلى السيرفر
+                const response = await fetch('visitor-counter.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ visitorId: visitorId })
+                });
+                
+                const data = await response.json();
+                const counterEl = document.getElementById('visitCount');
+                if (counterEl) {
+                    counterEl.innerText = data.total;
                 }
-            }
-            
-            const counterEl = document.getElementById('visitCount');
-            if (counterEl) {
-                counterEl.innerText = totalVisitors;
+            } catch (error) {
+                console.log('خطأ في تحديث العداد:', error);
             }
         }
 
