@@ -420,16 +420,41 @@
 
         // --- دالة العداد ---
         function handleVisitorCount() {
-            let visits = localStorage.getItem('site_visits');
+            // الحصول على معرف الزائر الفريد
+            let visitorId = localStorage.getItem('visitor_id');
             
-            if (!visits) {
-                visits = 1470;
-                localStorage.setItem('site_visits', visits);
+            // إذا لم يكن هناك معرف، إنشاء واحد جديد
+            if (!visitorId) {
+                visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('visitor_id', visitorId);
+            }
+            
+            // الحصول على قائمة الزوار السابقين
+            let visitorsList = localStorage.getItem('visitors_list');
+            let visitorsArray = visitorsList ? JSON.parse(visitorsList) : [];
+            
+            // الحصول على عدد الزوار الكلي
+            let totalVisitors = localStorage.getItem('total_visitors');
+            
+            if (!totalVisitors) {
+                // إذا لم تكن هناك قيمة محفوظة، ابدأ من 1470
+                totalVisitors = 1470;
+                visitorsArray = [visitorId];
+                localStorage.setItem('total_visitors', totalVisitors);
+                localStorage.setItem('visitors_list', JSON.stringify(visitorsArray));
+            } else {
+                // إذا كان الزائر الحالي جديد، أضفه وزيادة العداد
+                if (!visitorsArray.includes(visitorId)) {
+                    visitorsArray.push(visitorId);
+                    totalVisitors = parseInt(totalVisitors) + 1;
+                    localStorage.setItem('total_visitors', totalVisitors);
+                    localStorage.setItem('visitors_list', JSON.stringify(visitorsArray));
+                }
             }
             
             const counterEl = document.getElementById('visitCount');
             if (counterEl) {
-                counterEl.innerText = visits;
+                counterEl.innerText = totalVisitors;
             }
         }
 
